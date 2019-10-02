@@ -1,8 +1,8 @@
-cabal-version: >=1.10
+cabal-version: 2.40
 name:          Cabal
 version:       3.1.0.0
 copyright:     2003-2019, Cabal Development Team (see AUTHORS file)
-license:       BSD3
+license:       BSD-3-Clause
 license-file:  LICENSE
 author:        Cabal Development Team <cabal-devel@haskell.org>
 maintainer:    cabal-devel@haskell.org
@@ -255,6 +255,12 @@ source-repository head
 flag bundled-binary-generic
   default: False
 
+library x
+  signatures:
+    Foo
+  build-depends:
+    base
+
 library
   build-depends:
     array      >= 0.4.0.1  && < 0.6,
@@ -266,7 +272,12 @@ library
     filepath   >= 1.3.0.1  && < 1.5,
     pretty     >= 1.1.1    && < 1.2,
     process    >= 1.1.0.2  && < 1.7,
-    time       >= 1.4.0.1  && < 1.10
+    time       >= 1.4.0.1  && < 1.10,
+
+    x
+
+  mixins:
+    x
 
   if flag(bundled-binary-generic)
     build-depends: binary >= 0.5.1.1 && < 0.7
@@ -578,171 +589,3 @@ library
 
   if impl(ghc >= 7.11)
     other-extensions: PatternSynonyms
-
--- Small, fast running tests.
-test-suite unit-tests
-  type: exitcode-stdio-1.0
-  hs-source-dirs: tests
-  other-modules:
-    Test.Laws
-    Test.QuickCheck.Utils
-    UnitTests.Distribution.Compat.CreatePipe
-    UnitTests.Distribution.Compat.Time
-    UnitTests.Distribution.Compat.Graph
-    UnitTests.Distribution.Simple.Glob
-    UnitTests.Distribution.Simple.Program.Internal
-    UnitTests.Distribution.Simple.Utils
-    UnitTests.Distribution.SPDX
-    UnitTests.Distribution.System
-    UnitTests.Distribution.Types.GenericPackageDescription
-    UnitTests.Distribution.Utils.Generic
-    UnitTests.Distribution.Utils.NubList
-    UnitTests.Distribution.Utils.ShortText
-    UnitTests.Distribution.Version
-    UnitTests.Distribution.PkgconfigVersion
-  main-is: UnitTests.hs
-  build-depends:
-    array,
-    base,
-    binary,
-    bytestring,
-    containers,
-    directory,
-    filepath,
-    integer-logarithms >= 1.0.2 && <1.1,
-    tasty >= 1.1.0.3 && < 1.2,
-    tasty-hunit,
-    tasty-quickcheck,
-    tagged,
-    temporary,
-    text,
-    pretty,
-    QuickCheck >= 2.11.3 && < 2.12,
-    Cabal
-  ghc-options: -Wall
-  default-language: Haskell2010
-
-test-suite parser-tests
-  type: exitcode-stdio-1.0
-  hs-source-dirs: tests
-  main-is: ParserTests.hs
-  build-depends:
-    base,
-    base-compat >=0.10.4 && <0.11,
-    bytestring,
-    directory,
-    filepath,
-    tasty >= 1.1.0.3 && < 1.2,
-    tasty-hunit,
-    tasty-quickcheck,
-    tasty-golden >=2.3.1.1 && <2.4,
-    Diff >=0.3.4 && <0.4,
-    Cabal
-  ghc-options: -Wall
-  default-language: Haskell2010
-
-  if !impl(ghc >= 8.0)
-    build-depends:  semigroups
-
-  if impl(ghc >= 7.8)
-    build-depends:
-      tree-diff      >= 0.0.2 && <0.1
-    other-modules:
-      Instances.TreeDiff
-      Instances.TreeDiff.Language
-      Instances.TreeDiff.SPDX
-      Instances.TreeDiff.Version
-
-test-suite check-tests
-  type: exitcode-stdio-1.0
-  hs-source-dirs: tests
-  main-is: CheckTests.hs
-  build-depends:
-    base,
-    bytestring,
-    directory,
-    filepath,
-    tasty >= 1.1.0.3 && < 1.2,
-    tasty-golden >=2.3.1.1 && <2.4,
-    Diff >=0.3.4 && <0.4,
-    Cabal
-  ghc-options: -Wall
-  default-language: Haskell2010
-  if !impl(ghc >= 8.0)
-    build-depends:  semigroups
-
-test-suite custom-setup-tests
-  type: exitcode-stdio-1.0
-  hs-source-dirs: tests/custom-setup
-  main-is: CustomSetupTests.hs
-  other-modules:
-    CabalDoctestSetup
-    IdrisSetup
-  build-depends:
-    Cabal,
-    base,
-    directory,
-    filepath,
-    process
-  default-language: Haskell2010
-
-test-suite hackage-tests
-  type: exitcode-stdio-1.0
-  main-is: HackageTests.hs
-
-  -- TODO: need to get 01-index.tar on appveyor
-  if os(windows)
-    buildable: False
-
-  hs-source-dirs: tests
-
-  build-depends:
-    base,
-    Cabal,
-    bytestring,
-    deepseq,
-    containers,
-    directory,
-    filepath
-
-  build-depends:
-    base-compat          >=0.10.4   && <0.11,
-    base-orphans         >=0.6      && <0.9,
-    optparse-applicative >=0.13.2.0 && <0.15,
-    stm                  >=2.4.5.0  && <2.6,
-    tar                  >=0.5.0.3  && <0.6
-
-  if impl(ghc >= 7.8)
-    build-depends:
-      tree-diff      >= 0.0.2 && <0.1
-    other-modules:
-      Instances.TreeDiff
-      Instances.TreeDiff.Language
-      Instances.TreeDiff.SPDX
-      Instances.TreeDiff.Version
-
-  ghc-options: -Wall -rtsopts -threaded
-  default-extensions: CPP
-  default-language: Haskell2010
-
-test-suite rpmvercmp
-  type: exitcode-stdio-1.0
-  main-is: RPMVerCmp.hs
-
-  hs-source-dirs: tests
-  build-depends:
-    base,
-    Cabal,
-    bytestring
-
-  build-depends:
-    tasty >= 1.1.0.3 && < 1.2,
-    tasty-hunit,
-    tasty-quickcheck,
-    QuickCheck
-
-  c-sources: tests/cbits/rpmvercmp.c
-  cc-options: -Wall
-
-  ghc-options: -Wall
-  default-language: Haskell2010
